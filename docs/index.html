@@ -365,6 +365,239 @@
       </p>
     </section>
 
+
+<!-- BÀI 2: ẢO HÓA VÀ CONTAINER -->
+<section>
+  <h2>8. Bài 2 - Ảo hóa, Container và CloudSim Plus</h2>
+
+  <h3>Phần A - Đóng gói API bằng Docker</h3>
+
+  <p>
+    Em sử dụng Docker để đóng gói API Hello Cloud
+    của Bài 1 thành image notes-api:1.0.
+    Sau đó, em chạy hai container notes1 và notes2
+    để kiểm tra khả năng giới hạn tài nguyên CPU, RAM.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Tiêu chí</th>
+        <th>GitHub Codespaces</th>
+        <th>Container notes2</th>
+      </tr>
+      <tr>
+        <td>Thời gian</td>
+        <td>215,41 giây</td>
+        <td>0,433 giây</td>
+      </tr>
+      <tr>
+        <td>Kích thước / Lưu trữ</td>
+        <td>Hạn mức 15 GB-tháng</td>
+        <td>Image: 251 MB disk usage</td>
+      </tr>
+      <tr>
+        <td>Nhân hệ điều hành</td>
+        <td>Linux 6.8.0-1070-azure</td>
+        <td>Chia sẻ nhân Linux với môi trường Docker</td>
+      </tr>
+      <tr>
+        <td>Mức cô lập</td>
+        <td>Mức máy ảo</td>
+        <td>Namespace và cgroups</td>
+      </tr>
+    </table>
+  </div>
+
+  <p>
+    <em>
+      Lưu ý: Thời gian khởi tạo Codespaces và
+      thời gian chạy container ngắn hạn là
+      hai phép đo khác nhau.
+    </em>
+  </p>
+
+  <p>
+    <strong>Giới hạn tài nguyên notes2:</strong>
+    0,5 CPU và 128 MiB RAM.
+    Docker Stats ghi nhận 12,57 MiB RAM đang sử dụng.
+  </p>
+
+  <p>
+    <strong>Docker image công khai trên GHCR:</strong>
+    <a href="https://github.com/users/2324802010236-ux/packages/container/package/notes-api"
+       target="_blank" rel="noopener noreferrer">
+      Xem package notes-api:1.0
+    </a>
+  </p>
+
+  <p class="success">
+    Kết quả: Đóng gói, phát hành và tải lại
+    Docker image từ GHCR thành công.
+  </p>
+</section>
+
+
+<!-- PHẦN B: CLOUDSIM PLUS -->
+<section>
+  <h2>9. Kết quả mô phỏng CloudSim Plus</h2>
+
+  <p>
+    Em sử dụng CloudSim Plus để mô phỏng việc
+    phân bổ máy ảo và thực thi Cloudlet trên
+    máy chủ vật lý.
+  </p>
+
+  <div class="table-wrap">
+    <table>
+      <tr>
+        <th>Lần chạy</th>
+        <th>Cấu hình</th>
+        <th>Cloudlet cuối (giây)</th>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>Cấu hình gốc: 2 VM, 4 Cloudlet</td>
+        <td>20,1</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>Tăng số VM từ 2 lên 4</td>
+        <td>20,1</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Tăng số Cloudlet từ 4 lên 8</td>
+        <td>40,1 (4/8 Cloudlet hoàn thành)</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>CloudletSchedulerSpaceShared</td>
+        <td>Chưa thực hiện</td>
+      </tr>
+    </table>
+  </div>
+
+  <p>
+    <strong>Nhận xét:</strong>
+    Khi tăng số VM, thời gian hoàn thành các
+    Cloudlet quan sát được không thay đổi.
+    Khi tăng số Cloudlet lên 8, thời gian
+    hoàn thành của các Cloudlet được báo cáo
+    tăng lên 40,1 giây.
+  </p>
+
+  <div class="info">
+    Thí nghiệm lần 2 chỉ ghi nhận 4 Cloudlet
+    hoàn thành trong bảng kết quả.
+    Vì vậy, kết quả chưa đáp ứng đầy đủ yêu cầu
+    mô phỏng 8 Cloudlet.
+    Thí nghiệm lần 3 chưa được thực hiện.
+  </div>
+</section>
+
+
+<!-- CÂU HỎI PHẢN BIỆN BÀI 2 -->
+<section>
+  <h2>10. Trả lời câu hỏi phản biện Bài 2</h2>
+
+  <h3>Câu 1. Vì sao API vẫn báo RAM 7,8 GB
+  dù container bị giới hạn 128 MiB?</h3>
+
+  <p>
+    <strong>Trả lời:</strong>
+    Vì API sử dụng hàm os.totalmem() của Node.js
+    để đọc thông tin bộ nhớ hệ thống.
+    Hàm này có thể trả về RAM của môi trường
+    máy chủ thay vì giới hạn của container.
+  </p>
+
+  <p>
+    Docker sử dụng cgroups để giới hạn
+    tài nguyên thực tế của container.
+    Vì vậy, dù API báo 7,8 GB RAM,
+    container notes2 vẫn bị giới hạn 128 MiB.
+  </p>
+
+  <p>
+    Khi triển khai ứng dụng Node.js hoặc Java,
+    cần kiểm tra giới hạn bộ nhớ container
+    và cấu hình vùng nhớ phù hợp để tránh
+    vượt quá giới hạn, khiến tiến trình
+    bị hệ thống dừng do thiếu bộ nhớ.
+  </p>
+
+  <h3>Câu 2. Time-shared và Space-shared
+  khác nhau như thế nào?</h3>
+
+  <p>
+    <strong>Trả lời:</strong>
+    Time-shared cho phép nhiều Cloudlet
+    chia sẻ tài nguyên CPU theo thời gian.
+    Các tác vụ có thể được xử lý đồng thời
+    nhưng phải chia sẻ năng lực tính toán.
+  </p>
+
+  <p>
+    Space-shared cấp phát lõi CPU cho
+    từng Cloudlet. Khi không đủ tài nguyên,
+    các tác vụ khác phải chờ đến lượt,
+    giúp việc cấp phát CPU rõ ràng hơn.
+  </p>
+
+  <p>
+    Đối với gói đám mây giá rẻ,
+    em đề xuất Time-shared kết hợp
+    giới hạn tài nguyên và cơ chế
+    lập lịch công bằng.
+    Cách này giúp nhiều khách hàng
+    chia sẻ hạ tầng, nâng cao mức
+    sử dụng tài nguyên và giảm chi phí.
+  </p>
+
+  <p>
+    <em>
+      Lưu ý: Bài thực hành chưa hoàn thành
+      thí nghiệm Space-shared nên phần
+      so sánh này dựa trên nguyên lý
+      hoạt động của hai chính sách.
+    </em>
+  </p>
+
+  <h3>Câu 3. Mô phỏng giúp ích gì trước
+  khi thuê hạ tầng đám mây thực tế?</h3>
+
+  <p>
+    <strong>Trả lời:</strong>
+    Mô phỏng giúp ước lượng nhu cầu CPU,
+    RAM, số lượng máy ảo và thời gian
+    xử lý tác vụ trước khi triển khai thật.
+  </p>
+
+  <p>
+    Nhờ đó, doanh nghiệp có thể thử nghiệm
+    các phương án phân bổ tài nguyên,
+    so sánh chính sách lập lịch và
+    dự kiến chi phí mà chưa cần
+    thuê nhiều máy chủ thực tế.
+  </p>
+
+  <p>
+    Tuy nhiên, kết quả mô phỏng có thể
+    sai lệch do chưa phản ánh đầy đủ
+    độ trễ mạng, tốc độ phần cứng,
+    tranh chấp tài nguyên, tải thực tế
+    và các sự cố trong hệ thống.
+  </p>
+
+  <p>
+    Vì vậy, cần kết hợp mô phỏng với
+    thử nghiệm thực tế trước khi
+    triển khai ở quy mô lớn.
+  </p>
+</section>
+
+
   </main>
 
   <footer>
